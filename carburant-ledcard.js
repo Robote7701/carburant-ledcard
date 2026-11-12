@@ -15,8 +15,9 @@
  * max_stations: 0             # 0 = toutes
  * show_logos: true
  * style: autoroute            # autoroute | sobre
+ * layout: auto                # auto | row | stacked (auto = empilé au-delà de 3 carburants)
  */
-const CLC_VERSION = "1.0.0";
+const CLC_VERSION = "1.1.0";
 const CLC_TAG = "carburant-ledcard";
 
 const CLC_I18N = {
@@ -143,6 +144,19 @@ const CLC_STYLE = `
   .sober .digits, .sober .ghost { font-size:19px; }
   .sober .glow, .sober .led.best .glow, .sober .led.stale .glow { filter:drop-shadow(0 0 1px currentColor); }
   .sober .foot { border-top:1px solid var(--divider-color); color:var(--secondary-text-color); opacity:1; }
+
+  /* ---- mise en page empilée (beaucoup de carburants) : afficheurs sous le nom ---- */
+  .frame { container-type:inline-size; }
+  .leds { display:contents; }
+  .stacked { --fs:clamp(12px, calc(((100cqw - (var(--n) - 1) * 5px) / var(--n) - 10px) / 3.3), 22px); }
+  .stacked .row { grid-template-columns:44px minmax(0,1fr) auto; row-gap:6px; }
+  .stacked .leds { grid-column:1 / -1; display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:5px; }
+  .stacked .cols.stk { display:grid; grid-template-columns:repeat(var(--n),minmax(0,1fr)); gap:5px; }
+  .stacked .cols.stk div { font-size:12px; letter-spacing:.5px; }
+  .stacked .digits, .stacked .ghost { font-size:var(--fs); letter-spacing:.5px;
+    -webkit-mask-size:calc(var(--fs) / 8.8) calc(var(--fs) / 8.8); mask-size:calc(var(--fs) / 8.8) calc(var(--fs) / 8.8); }
+  .stacked .led { height:calc(var(--fs) + 14px); }
+  .stacked .led.na .digits, .stacked .led.out .digits { font-size:calc(var(--fs) * .72); }
   @media (max-width:400px) {
     .grid { grid-template-columns:38px minmax(0,1fr) 36px repeat(var(--n),64px); column-gap:5px; }
     .badge { width:38px; }
@@ -168,6 +182,7 @@ class CarburantLedCard extends HTMLElement {
       max_stations: 0,
       show_logos: true,
       style: "autoroute",
+      layout: "auto",
       ...(config || {}),
     };
     let pinned = this._config.pinned || [];
@@ -293,7 +308,7 @@ class CarburantLedCard extends HTMLElement {
       <div class="badge${logo ? " has-img" : ""}" style="font-size:${fs}px">${logo ? `<img src="${clcEsc(logo)}" alt="" loading="lazy">` : ""}<span class="bl">${clcEsc(label)}</span></div>
       <div class="name" title="${clcEsc(st.name)}"><div class="n">${pinned ? '<span class="pin">★</span>' : ""}${clcEsc(disp)}</div>
         ${city ? `<div class="c">${clcEsc(city)}</div>` : ""}</div>
-      <div class="km">${km}<small>km</small></div>${leds}</div>`;
+      <div class="km">${km}<small>km</small></div><div class="leds">${leds}</div></div>`;
   }
 
   _render(sensors) {
@@ -302,6 +317,8 @@ class CarburantLedCard extends HTMLElement {
     const cfg = this._config;
     const t = clcT(this._hass);
     const sober = ["sobre", "sober", "simple"].includes(String(cfg.style).toLowerCase());
+    const lay = String(cfg.layout || "auto").toLowerCase();
+    const stacked = ["stacked", "empile", "empilé"].includes(lay) || (!["row", "ligne"].includes(lay) && cfg.fuels.length > 3);
     const fuels = cfg.fuels;
     const stations = this._stations(sensors);
     const best = {};
@@ -328,12 +345,13 @@ class CarburantLedCard extends HTMLElement {
 
     this.shadowRoot.innerHTML = `<style>${CLC_STYLE}</style>
       <ha-card${sober ? "" : ' style="background:none;box-shadow:none;border:none"'}>
-      <div class="panel${sober ? " sober" : ""}" style="--n:${fuels.length}"><div class="frame">
+      <div class="panel${sober ? " sober" : ""}${stacked ? " stacked" : ""}" style="--n:${fuels.length}"><div class="frame">
         <div class="head"><div class="pict"><ha-icon icon="mdi:gas-station"></ha-icon></div>
           <div class="titles"><div class="t">${clcEsc(cfg.title || t.title)}</div>
           ${cfg.subtitle ? `<div class="s">${clcEsc(cfg.subtitle)}</div>` : ""}</div></div>
-        <div class="grid cols"><div></div><div></div><div class="km">km</div>
-          ${fuels.map((f) => `<div>${clcEsc(f)}</div>`).join("")}</div>
+        ${stacked ? `<div class="cols stk">${fuels.map((f) => `<div>${clcEsc(f)}</div>`).join("")}</div>`
+          : `<div class="grid cols"><div></div><div></div><div class="km">km</div>
+          ${fuels.map((f) => `<div>${clcEsc(f)}</div>`).join("")}</div>`}
         ${body}
         <div class="foot"><span>${clcEsc(t.foot)}</span>
           <span><span class="dot" style="background:var(--led-best)"></span>${clcEsc(t.best)}<span class="dot" style="background:var(--led)"></span>${clcEsc(t.fresh)}<span class="dot" style="background:var(--led-old)"></span>${clcEsc(t.stale(cfg.stale_days))}</span></div>
@@ -363,12 +381,15 @@ class CarburantLedCard extends HTMLElement {
           { name: "show_logos", selector: { boolean: {} } },
           { name: "style", selector: { select: { mode: "dropdown", options: [
             { value: "autoroute", label: "Autoroute" }, { value: "sobre", label: "Sobre / Sober" }] } } },
+          { name: "layout", selector: { select: { mode: "dropdown", options: [
+            { value: "auto", label: "Auto" }, { value: "row", label: "Ligne / Row" },
+            { value: "stacked", label: "Empilé / Stacked" }] } } },
         ] },
       ],
       computeLabel: (s) => {
         const t = CLC_I18N[(document.documentElement.lang || "fr").startsWith("fr") ? "fr" : "en"];
         return ({ title: t.f_title, subtitle: t.f_subtitle, fuels: t.f_fuels, pinned: t.f_pinned, sort: t.f_sort,
-          stale_days: t.f_stale, max_stations: t.f_max, show_logos: t.f_logos, style: "Style" })[s.name];
+          stale_days: t.f_stale, max_stations: t.f_max, show_logos: t.f_logos, style: "Style", layout: "Mise en page / Layout" })[s.name];
       },
     };
   }

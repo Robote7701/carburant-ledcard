@@ -6,6 +6,8 @@ Carte Home Assistant façon **panneau d'autoroute** (ou en **style sobre** qui s
 
 ![Style sobre, thèmes clair et sombre](images/preview-sober.png)
 
+[![Ouvrir dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Robote7701&repository=carburant-ledcard&category=plugin)
+
 > 🇬🇧 [English version below](#-english)
 
 ---
@@ -50,9 +52,15 @@ Toucher un prix ouvre l'historique du capteur. Les textes de la carte passent en
 
 ![États](images/preview-states.png)
 
+### Tous les carburants
+Avec plus de 3 carburants, les afficheurs passent automatiquement **sous le nom** de la station et se partagent toute la largeur : ça tient même sur un téléphone. Ici les 6 carburants, 5 stations max :
+
+![Six carburants, 5 stations](images/preview-all-fuels.png)
+
 ## 📦 Installation
 
 ### Avec HACS (recommandé)
+Cliquez sur le bouton **Ouvrir dans HACS** ci-dessus, ou :
 1. HACS → menu **⋮** → **Dépôts personnalisés**.
 2. URL : `https://github.com/robote7701/carburant-ledcard`, catégorie **Dashboard** (ou *Lovelace*).
 3. Cherchez **Carburant LED Card** → **Télécharger**.
@@ -93,6 +101,7 @@ style: autoroute     # ou sobre
 | `max_stations` | `0` | nombre max. de stations affichées (0 = toutes) |
 | `show_logos` | `true` | afficher les logos fournis par l'intégration |
 | `style` | `autoroute` | `autoroute` (panneau bleu) ou `sobre` (suit les couleurs du thème, clair ou sombre) |
+| `layout` | `auto` | `row` (tout sur une ligne), `stacked` (afficheurs sous le nom) ; `auto` = empilé au-delà de 3 carburants |
 
 ## ⚠️ Limites
 - Les prix sont ceux déclarés par les stations sur le site officiel : certaines ne les mettent pas à jour tous les jours (d'où la couleur orange).
@@ -131,5 +140,6 @@ stale_days: 3
 max_stations: 0       # 0 = all
 show_logos: true
 style: autoroute      # or sobre (follows your theme)
+layout: auto          # row | stacked (auto = stacked above 3 fuels)
 ```
 A visual editor is available. MIT licence.

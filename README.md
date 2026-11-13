@@ -41,7 +41,7 @@ L'intégration crée **un capteur par station et par carburant** (`sensor.statio
 
 | Couleur / texte | Signification |
 |---|---|
-| 🟢 vert | le prix le moins cher de la colonne (parmi les prix à jour) |
+| 🟢 vert | le prix le moins cher de la colonne (parmi les stations affichées et les prix à jour) |
 | 🟡 jaune | prix à jour |
 | 🟠 orange | prix pas mis à jour depuis plus de `stale_days` jours |
 | `RUPT.` rouge | carburant en rupture |
@@ -128,7 +128,7 @@ The card reads the sensors of the **[Prix Carburant](https://github.com/Aohzan/h
 ### Entities used
 One sensor per station and fuel. The card discovers them automatically from their `station_id` and `fuel_type` attributes; it also reads `name`, `brand`, `city`, `distance`, `entity_picture`, `days_since_last_update`, `shortage_since` and `updated_date`.
 
-Colours: 🟢 cheapest up-to-date price · 🟡 up to date · 🟠 older than `stale_days` · red `OUT` = shortage · grey `N/A` = fuel not sold. Tap a price to open its history. Labels follow the Home Assistant language (French or English).
+Colours: 🟢 cheapest up-to-date price among the stations shown · 🟡 up to date · 🟠 older than `stale_days` · red `OUT` = shortage · grey `N/A` = fuel not sold. Tap a price to open its history. Labels follow the Home Assistant language (French or English).
 
 ### Install
 HACS → **⋮** → **Custom repositories** → `https://github.com/robote7701/carburant-ledcard`, category **Dashboard** → download **Carburant LED Card**, then reload the page. Manual: copy `carburant-ledcard.js` to `/config/www/` and add `/local/carburant-ledcard.js` as a *JavaScript module* resource.

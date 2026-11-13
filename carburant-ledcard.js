@@ -17,7 +17,7 @@
  * style: autoroute            # autoroute | sobre
  * layout: auto                # auto | row | stacked (auto = empilé au-delà de 3 carburants)
  */
-const CLC_VERSION = "1.1.1";
+const CLC_VERSION = "1.1.2";
 const CLC_TAG = "carburant-ledcard";
 
 const CLC_I18N = {
@@ -321,12 +321,6 @@ class CarburantLedCard extends HTMLElement {
     const stacked = ["stacked", "empile", "empilé"].includes(lay) || (!["row", "ligne"].includes(lay) && cfg.fuels.length > 3);
     const fuels = cfg.fuels;
     const stations = this._stations(sensors);
-    const best = {};
-    for (const f of fuels) {
-      const k = f.toLowerCase();
-      const vals = stations.map((s) => s.prices[k]).filter((p) => p && !p.stale && p.value !== null).map((p) => p.value);
-      best[k] = vals.length ? Math.min(...vals) : null;
-    }
     const k0 = fuels[0].toLowerCase();
     const key = (s) => cfg.sort === "price"
       ? (s.prices[k0] && s.prices[k0].value !== null ? s.prices[k0].value : 99)
@@ -336,6 +330,14 @@ class CarburantLedCard extends HTMLElement {
     const max = Number(cfg.max_stations) || 0;
     if (max > 0) others = others.slice(0, Math.max(0, max - pinned.length));
     this._rows = pinned.length + others.length;
+    // Le prix mis en avant (vert) est le moins cher parmi les stations affichées.
+    const shown = pinned.concat(others);
+    const best = {};
+    for (const f of fuels) {
+      const k = f.toLowerCase();
+      const vals = shown.map((s) => s.prices[k]).filter((p) => p && !p.stale && p.value !== null).map((p) => p.value);
+      best[k] = vals.length ? Math.min(...vals) : null;
+    }
 
     const body = stations.length
       ? pinned.map((s) => this._row(s, fuels, best, true, t)).join("") +

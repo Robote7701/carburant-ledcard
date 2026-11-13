@@ -108,6 +108,9 @@ style: autoroute     # ou sobre
 - Pas de logo pour certaines enseignes : leur nom s'affiche alors en texte.
 - Le style LED utilise une police à chasse fixe du système ; le rendu varie un peu selon l'appareil.
 
+## 👀 Voir aussi
+Pour l'historique des prix, le coût d'un plein et la fiche détaillée d'une station, voir la **[Carte Prix Carburant](https://github.com/Marlboro62/prix-carburant-card)** de Marlboro62 : elle utilise la même intégration et complète bien ce panneau.
+
 ## 🙏 Crédits
 - Données : [prix-carburants.gouv.fr](https://www.prix-carburants.gouv.fr/) (Licence Ouverte Etalab).
 - Intégration : [Aohzan/hass-prixcarburant](https://github.com/Aohzan/hass-prixcarburant), qui fournit aussi les logos des enseignes.
@@ -143,3 +146,5 @@ style: autoroute      # or sobre (follows your theme)
 layout: auto          # row | stacked (auto = stacked above 3 fuels)
 ```
 A visual editor is available. MIT licence.
+
+See also: [Prix Carburant Card](https://github.com/Marlboro62/prix-carburant-card) by Marlboro62, for price history, cost of a full tank and a detailed single-station view.

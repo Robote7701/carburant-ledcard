@@ -17,7 +17,7 @@
  * style: autoroute            # autoroute | sobre
  * layout: auto                # auto | row | stacked (auto = empilé au-delà de 3 carburants)
  */
-const CLC_VERSION = "1.1.0";
+const CLC_VERSION = "1.1.1";
 const CLC_TAG = "carburant-ledcard";
 
 const CLC_I18N = {
